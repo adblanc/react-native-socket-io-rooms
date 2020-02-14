@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, StyleSheet, Text, FlatList } from "react-native";
+import { View, StyleSheet, Text, FlatList, Button } from "react-native";
 import { NavigationStackProp } from "react-navigation-stack";
 
 export interface RoomProps {
@@ -10,13 +10,15 @@ export interface RoomProps {
 export default class Room extends React.Component<RoomProps, any> {
   id: string;
   players: any[];
+  playerKey: string;
   player: any;
 
   constructor(props: RoomProps) {
     super(props);
     this.id = this.props.navigation.getParam("id", 0);
     this.players = this.props.navigation.getParam("players", []);
-    this.player = this.props.navigation.getParam("player", undefined);
+    this.playerKey = this.props.navigation.getParam("playerKey", undefined);
+    this.player = this.players.find(p => p.key === this.playerKey);
     this.state = {
       players: []
     };
@@ -26,8 +28,23 @@ export default class Room extends React.Component<RoomProps, any> {
     const { socket } = this.props.screenProps;
 
     this.setState({ players: this.players });
-    socket.on("playersUpdated", players => this.setState({ players }));
+    socket.on("playersUpdated", players =>
+      this.setState({ players }, this.checkAdmin)
+    );
   }
+
+  private checkAdmin = () => {
+    if (!this.state.players.find(p => p.isAdmin))
+      this.setState(state => {
+        const newPlayers = state.players.map((p, i) => {
+          if (i === 0) return { ...p, isAdmin: true };
+          return p;
+        });
+        return {
+          players: newPlayers
+        };
+      });
+  };
 
   componentWillUnmount() {
     const { socket } = this.props.screenProps;
@@ -36,7 +53,15 @@ export default class Room extends React.Component<RoomProps, any> {
     socket.emit("quitRoom", { id: this.id, username: this.player.name });
   }
 
+  private launchGame = () => {
+    console.log("launch");
+  };
+
   public render() {
+    console.log(this.state.players);
+    console.log(this.playerKey);
+    const player =
+      this.state.players.find(p => p.key === this.playerKey) || this.player;
     return (
       <View style={styles.container}>
         <View style={styles.container}>
@@ -46,6 +71,13 @@ export default class Room extends React.Component<RoomProps, any> {
           <FlatList
             data={this.state.players}
             renderItem={({ item }: any) => <Text>{item.name}</Text>}
+          />
+        </View>
+        <View style={styles.container}>
+          <Button
+            title="Launch game"
+            onPress={this.launchGame}
+            disabled={!player.isAdmin}
           />
         </View>
       </View>

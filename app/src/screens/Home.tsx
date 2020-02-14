@@ -1,7 +1,8 @@
 import * as React from "react";
 import { View, StyleSheet, Text, Button, TextInput, Alert } from "react-native";
-import KeyboardDismiss from "../keyboardDismiss";
 import { NavigationStackProp } from "react-navigation-stack";
+import Constants from "expo-constants";
+import KeyboardDismiss from "../keyboardDismiss";
 
 export interface HomeProps {
   navigation: NavigationStackProp;
@@ -11,10 +12,12 @@ export interface HomeProps {
 export default class Home extends React.Component<HomeProps, any> {
   username: string;
   roomId: string;
+  isRoomAdmin: boolean;
   constructor(props: HomeProps) {
     super(props);
     this.username = "";
     this.roomId = "";
+    this.isRoomAdmin = false;
     this.state = {
       isConnected: null
     };
@@ -31,7 +34,7 @@ export default class Home extends React.Component<HomeProps, any> {
       this.props.navigation.navigate("Room", {
         id,
         players,
-        player: { name: this.username }
+        playerKey: Constants.sessionId
       });
     });
 
@@ -73,14 +76,21 @@ export default class Home extends React.Component<HomeProps, any> {
 
     if (!this.verifyUsername()) return;
 
-    socket.emit("createRoom", { name: this.username });
+    socket.emit("createRoom", {
+      name: this.username,
+      key: Constants.sessionId,
+      isAdmin: true
+    });
   };
 
   private joinRoom = () => {
     const { socket } = this.props.screenProps;
     if (!this.verifyUsername()) return;
 
-    socket.emit("joinRoom", { id: this.roomId, user: { name: this.username } });
+    socket.emit("joinRoom", {
+      id: this.roomId,
+      user: { name: this.username, key: Constants.sessionId }
+    });
   };
 
   public render() {
