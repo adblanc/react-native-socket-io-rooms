@@ -54,7 +54,9 @@ export default class Room extends React.Component<RoomProps, any> {
   }
 
   private launchGame = () => {
-    console.log("launch");
+    const { socket } = this.props.screenProps;
+
+    socket.emit("gameStarted");
   };
 
   public render() {

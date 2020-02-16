@@ -47,4 +47,9 @@ module.exports = (io, socket) => {
       rooms.splice(i, 1);
     }
   });
+
+  socket.on("launchGame", id => {
+    // sending to all clients in 'id' room, including sender
+    io.in(id).emit("gameStarted", "the game will start soon");
+  });
 };
