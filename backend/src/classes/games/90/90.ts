@@ -1,4 +1,4 @@
-import shuffle from "../../helpers/shuffle";
+import shuffle from "../../../helpers/shuffle";
 
 // Card representation : { group: 0, id: 2, key: '02' }, group 0-3 / cards 2-14
 
@@ -17,20 +17,29 @@ interface Card {
   eleven?: boolean;
 }
 
+interface PlayResult {
+  state: "" | "loose" | "reverse";
+  sips: number;
+}
+
 class Game90 {
   deck: Card[];
   total: number;
   playerIndex: number;
+  currentPlayer: any;
+  cardsOnBoard: Card[];
   private _players: any[];
 
   constructor(players: any[]) {
     this.deck = this.createDeck();
     this._players = [...players];
     this.playerIndex = 0;
+    this.cardsOnBoard = [];
     this.total = 0;
 
     shuffle(this._players);
     this.distributeCards();
+    this.currentPlayer = this.players[this.playerIndex];
   }
 
   private createDeck() {
@@ -55,22 +64,46 @@ class Game90 {
     }
   }
 
-  public getPlayerTurn(): string {
+  private nextPlayer(): any {
+    this.playerIndex++;
+
     if (this.playerIndex >= this.players.length) this.playerIndex = 0;
 
-    return this.players[this.playerIndex++].key;
+    this.currentPlayer = this.players[this.playerIndex];
+
+    return this.currentPlayer;
   }
 
-  public playCard(card: Card): string {
+  public playCard(index: number): PlayResult {
+    const result: PlayResult = {
+      state: "",
+      sips: 0
+    };
+
+    const [card] = this.currentPlayer.cards.splice(index, 1);
+    this.cardsOnBoard.push(card);
+
     const value = this.getCardValue(card);
 
     if (value === 70) this.total = 70;
-    else this.total += value;
+    else {
+      this.total += value;
+      if (this.total < 0) this.total = 0;
+      else if (this.total > 90) this.total = 90;
+    }
 
-    if (value === 0) return "reverse";
-    if (this.total >= 90) return "loose";
+    if (value === 0) result.state = "reverse";
+    if (this.total >= 90) {
+      this.total = 0;
+      result.state = "loose";
+      this.cardsOnBoard = [];
+    }
+    if (this.total != 0 && this.total % 10 === 0) result.sips = this.total / 10;
 
-    return "ok";
+    this.currentPlayer.cards.splice(index, 0, this.pickCard());
+
+    this.nextPlayer();
+    return result;
   }
 
   private getCardValue(card: Card): number {
@@ -89,6 +122,25 @@ class Game90 {
         return card.id;
     }
     return card.id;
+  }
+
+  private pickCard() {
+    if (this.deck.length <= 0) this.deck = this.newDeck();
+
+    return this.deck.shift();
+  }
+
+  private newDeck() {
+    const playerCards = this.players.reduce((current, p) => {
+      p.cards.forEach((c: any) => current.push(c));
+      return current;
+    }, []);
+
+    const deck = this.createDeck().filter(
+      c => !playerCards.find((card: any) => card.key === c.key)
+    );
+
+    return deck;
   }
 
   public get players(): any[] {

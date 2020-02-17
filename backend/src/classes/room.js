@@ -6,21 +6,21 @@ class Room {
     this.id = randomNumber(1, 9999).toString();
   }
 
-  setRandomId = () => {
+  setRandomId() {
     this.id = randomNumber(1, 9999).toString();
-  };
+  }
 
-  addUser = user => {
+  addUser(user) {
     this.players.push(user);
-  };
+  }
 
-  removeUser = username => {
+  removeUser(username) {
     const i = this.players.findIndex(u => u.name === username);
 
     if (i < 0) return;
 
     this.players.splice(i, 1);
-  };
+  }
 }
 
 module.exports = Room;
