@@ -1,8 +1,8 @@
-const Room = require("../classes/room");
+import Room from "../classes/room";
 
-const rooms = [];
+const rooms: Room[] = [];
 
-module.exports = (io, socket) => {
+export default (io: SocketIO.Server, socket: SocketIO.Socket) => {
   socket.on("createRoom", user => {
     const room = new Room();
 

@@ -1,11 +1,16 @@
-const app = require("express")();
+import express from "express";
+import socketio from "socket.io";
+
+const app = express();
+
 const http = require("http").Server(app);
-const io = require("socket.io")(http);
+
+const io = socketio(http);
 
 const roomListener = require("./src/sockets/room");
 
 app.get("/", function(req, res) {
-  res.sendFile(__dirname + "/index.html");
+  res.sendFile(__dirname + "../index.html");
 });
 
 io.on("connection", function(socket) {

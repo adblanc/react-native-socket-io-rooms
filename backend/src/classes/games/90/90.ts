@@ -109,9 +109,8 @@ class Game90 {
   private getCardValue(card: Card): number {
     switch (card.id) {
       case Cards.AS:
-        if (card.one) return 1;
         if (card.eleven) return 11;
-        break;
+        return 1;
       case Cards.KING:
         return 70;
       case Cards.QUEEN:
@@ -121,7 +120,6 @@ class Game90 {
       default:
         return card.id;
     }
-    return card.id;
   }
 
   private pickCard() {

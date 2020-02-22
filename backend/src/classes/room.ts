@@ -1,6 +1,8 @@
-const randomNumber = require("../helpers/random");
+import randomNumber from "../helpers/random";
 
-class Room {
+export default class Room {
+  players: any[];
+  id: string;
   constructor() {
     this.players = [];
     this.id = randomNumber(1, 9999).toString();
@@ -10,11 +12,11 @@ class Room {
     this.id = randomNumber(1, 9999).toString();
   }
 
-  addUser(user) {
+  addUser(user: any) {
     this.players.push(user);
   }
 
-  removeUser(username) {
+  removeUser(username: string) {
     const i = this.players.findIndex(u => u.name === username);
 
     if (i < 0) return;
@@ -22,5 +24,3 @@ class Room {
     this.players.splice(i, 1);
   }
 }
-
-module.exports = Room;
