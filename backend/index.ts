@@ -7,7 +7,8 @@ const http = require("http").Server(app);
 
 const io = socketio(http);
 
-const roomListener = require("./src/sockets/room");
+import listenRoom from "./src/sockets/room";
+import listen90 from "./src/sockets/games/90";
 
 app.get("/", function(req, res) {
   res.sendFile(__dirname + "../index.html");
@@ -15,7 +16,8 @@ app.get("/", function(req, res) {
 
 io.on("connection", function(socket) {
   console.log("a user connected");
-  roomListener(io, socket);
+  listenRoom(io, socket);
+  listen90(io, socket);
 });
 
 http.listen(3000, function() {

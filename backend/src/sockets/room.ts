@@ -49,7 +49,12 @@ export default (io: SocketIO.Server, socket: SocketIO.Socket) => {
   });
 
   socket.on("launchGame", id => {
+    console.log("launch game");
+    const room = rooms.find(r => r.id === id);
+
+    if (!room) return;
+
     // sending to all clients in 'id' room, including sender
-    io.in(id).emit("gameStarted", "the game will start soon");
+    socket.emit("90_startGame", id, room.players);
   });
 };

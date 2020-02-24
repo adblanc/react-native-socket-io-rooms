@@ -2,6 +2,7 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import Home from "./screens/Home";
 import Room from "./screens/Room";
+import Game from "./screens/Game";
 
 const AppNavigator = createStackNavigator(
   {
@@ -13,6 +14,13 @@ const AppNavigator = createStackNavigator(
     },
     Room: {
       screen: Room,
+      navigationOptions: () => ({
+        header: null
+      })
+    },
+
+    Game: {
+      screen: Game,
       navigationOptions: () => ({
         header: null
       })

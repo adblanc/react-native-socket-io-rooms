@@ -28,9 +28,20 @@ export default class Room extends React.Component<RoomProps, any> {
     const { socket } = this.props.screenProps;
 
     this.setState({ players: this.players });
+
     socket.on("playersUpdated", players =>
       this.setState({ players }, this.checkAdmin)
     );
+
+    socket.on("gameStarted", ({ currentPlayer, players }) => {
+      console.log("game started");
+      this.props.navigation.navigate("Game", {
+        id: this.id,
+        players,
+        playerKey: this.playerKey,
+        currentPlayer
+      });
+    });
   }
 
   private checkAdmin = () => {
@@ -56,7 +67,7 @@ export default class Room extends React.Component<RoomProps, any> {
   private launchGame = () => {
     const { socket } = this.props.screenProps;
 
-    socket.emit("gameStarted");
+    socket.emit("90_startGame", this.id, this.state.players);
   };
 
   public render() {

@@ -20,6 +20,13 @@ interface Card {
 interface PlayResult {
   state: "" | "loose" | "reverse";
   sips: number;
+  total: number;
+  cardPlayed: Card;
+}
+
+interface CardPlayed {
+  result: PlayResult;
+  cards: Card[];
 }
 
 class Game90 {
@@ -74,16 +81,19 @@ class Game90 {
     return this.currentPlayer;
   }
 
-  public playCard(index: number): PlayResult {
+  public playCard(index: number): CardPlayed {
+    const [cardPlayed] = this.currentPlayer.cards.splice(index, 1);
+
     const result: PlayResult = {
       state: "",
-      sips: 0
+      sips: 0,
+      total: this.total,
+      cardPlayed
     };
 
-    const [card] = this.currentPlayer.cards.splice(index, 1);
-    this.cardsOnBoard.push(card);
+    this.cardsOnBoard.push(cardPlayed);
 
-    const value = this.getCardValue(card);
+    const value = this.getCardValue(cardPlayed);
 
     if (value === 70) this.total = 70;
     else {
@@ -100,10 +110,13 @@ class Game90 {
     }
     if (this.total != 0 && this.total % 10 === 0) result.sips = this.total / 10;
 
-    this.currentPlayer.cards.splice(index, 0, this.pickCard());
+    const cards = this.currentPlayer.cards;
+    cards.splice(index, 0, this.pickCard());
 
     this.nextPlayer();
-    return result;
+
+    result.total = this.total;
+    return { result, cards };
   }
 
   private getCardValue(card: Card): number {
